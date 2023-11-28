@@ -17,6 +17,7 @@ today = today.getTime();
 let internalTime = getTime();
 let windowManager;
 let initialized = false;
+let imageLoaded = false;
 
 // get time in seconds since beginning of the day (so that all windows use the same time)
 function getTime ()
@@ -121,8 +122,10 @@ else
 	
 			// Load image texture
 			let texture = i == 0 ?
-				new t.TextureLoader().load(`./img/Mumu.png`) :
-				new t.TextureLoader().load(`./img/MumuClone.png`);
+				new t.TextureLoader().load(`./img/Mumu.png`, onLoadCallback) :
+				new t.TextureLoader().load(`./img/MumuClone.png`, onLoadCallback);
+			
+			if(!imageLoaded) return;
 			texture.flipY = false;
 	
 			let scale = 0.2;
@@ -138,6 +141,13 @@ else
 			world.add(image);
 			images.push(image);
 		}
+	}
+
+	function onLoadCallback(){
+		if(imageLoaded) return;
+		imageLoaded = true;
+		console.log("Image Loaded");
+		updateNumberOfImages();
 	}
 
 	function updateWindowShape (easing = true)
