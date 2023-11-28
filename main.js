@@ -1,15 +1,12 @@
-import WindowManager from './WindowManager.js'
-
-
+import WindowManager from './WindowManager.js';
 
 const t = THREE;
 let camera, scene, renderer, world;
 let near, far;
 let pixR = window.devicePixelRatio ? window.devicePixelRatio : 1;
-let cubes = [];
-let sceneOffsetTarget = {x: 0, y: 0};
-let sceneOffset = {x: 0, y: 0};
-
+let images = []; // Array to store image textures
+let sceneOffsetTarget = { x: 0, y: 0 };
+let sceneOffset = { x: 0, y: 0 };
 let today = new Date();
 today.setHours(0);
 today.setMinutes(0);
@@ -105,35 +102,41 @@ else
 
 	function windowsUpdated ()
 	{
-		updateNumberOfCubes();
+		updateNumberOfImages();
 	}
 
-	function updateNumberOfCubes ()
-	{
+	function updateNumberOfImages() {
 		let wins = windowManager.getWindows();
-
-		// remove all cubes
-		cubes.forEach((c) => {
-			world.remove(c);
-		})
-
-		cubes = [];
-
-		// add new cubes based on the current window setup
-		for (let i = 0; i < wins.length; i++)
-		{
+	
+		// Remove all previous images
+		images.forEach((image) => {
+			world.remove(image);
+		});
+	
+		images = [];
+	
+		// Add new images based on the current window setup
+		for (let i = 0; i < wins.length; i++) {
 			let win = wins[i];
+	
+			// Load image texture
+			let texture = i == 0 ?
+				new t.TextureLoader().load(`./img/Mumu.png`) :
+				new t.TextureLoader().load(`./img/MumuClone.png`);
+			texture.flipY = false;
+	
+			let scale = 0.2;
+			let geometry = new t.PlaneGeometry(~~(514 * scale), ~~(718 * scale));
 
-			let c = new t.Color();
-			c.setHSL(i * .1, 1.0, .5);
-
-			let s = 100 + i * 50;
-			let cube = new t.Mesh(new t.BoxGeometry(s, s, s), new t.MeshBasicMaterial({color: c , wireframe: true}));
-			cube.position.x = win.shape.x + (win.shape.w * .5);
-			cube.position.y = win.shape.y + (win.shape.h * .5);
-
-			world.add(cube);
-			cubes.push(cube);
+			// Use MeshBasicMaterial with transparent set to true
+			let material = new t.MeshBasicMaterial({ map: texture, side: t.DoubleSide, transparent: true });
+	
+			let image = new t.Mesh(geometry, material);
+			image.position.x = win.shape.x + win.shape.w * 0.5;
+			image.position.y = win.shape.y + win.shape.h * 0.5;
+	
+			world.add(image);
+			images.push(image);
 		}
 	}
 
@@ -145,40 +148,31 @@ else
 	}
 
 
-	function render ()
-	{
+	function render() {
 		let t = getTime();
-
+	
 		windowManager.update();
-
-
-		// calculate the new position based on the delta between current offset and new offset times a falloff value (to create the nice smoothing effect)
-		let falloff = .05;
-		sceneOffset.x = sceneOffset.x + ((sceneOffsetTarget.x - sceneOffset.x) * falloff);
-		sceneOffset.y = sceneOffset.y + ((sceneOffsetTarget.y - sceneOffset.y) * falloff);
-
-		// set the world position to the offset
+	
+		let falloff = 0.05;
+		sceneOffset.x = sceneOffset.x + (sceneOffsetTarget.x - sceneOffset.x) * falloff;
+		sceneOffset.y = sceneOffset.y + (sceneOffsetTarget.y - sceneOffset.y) * falloff;
+	
 		world.position.x = sceneOffset.x;
 		world.position.y = sceneOffset.y;
-
+	
 		let wins = windowManager.getWindows();
-
-
-		// loop through all our cubes and update their positions based on current window positions
-		for (let i = 0; i < cubes.length; i++)
-		{
-			let cube = cubes[i];
+	
+		for (let i = 0; i < images.length; i++) {
+			let image = images[i];
 			let win = wins[i];
-			let _t = t;// + i * .2;
-
-			let posTarget = {x: win.shape.x + (win.shape.w * .5), y: win.shape.y + (win.shape.h * .5)}
-
-			cube.position.x = cube.position.x + (posTarget.x - cube.position.x) * falloff;
-			cube.position.y = cube.position.y + (posTarget.y - cube.position.y) * falloff;
-			cube.rotation.x = _t * .5;
-			cube.rotation.y = _t * .3;
-		};
-
+			let _t = t;
+	
+			let posTarget = { x: win.shape.x + win.shape.w * 0.5, y: win.shape.y + win.shape.h * 0.5 };
+	
+			image.position.x = image.position.x + (posTarget.x - image.position.x) * falloff;
+			image.position.y = image.position.y + (posTarget.y - image.position.y) * falloff;
+		}
+	
 		renderer.render(scene, camera);
 		requestAnimationFrame(render);
 	}
