@@ -1,5 +1,7 @@
-## 3d scene spanning multiple windows using three.js and localStorage
+# Clone Muelsyse
 
-A simple example showing how to setup a 3d scene across windows on the same origin using three.js and localStorage. Code should be self explanatory
+Spawnning many Muelsyse from browser and sync position with others
 
-follow me on twitter at [@_nonfigurativ_](https://twitter.com/_nonfigurativ_) for more stuff like this
+Fork from: [multipleWindow3dScene](https://github.com/bgstaal/multipleWindow3dScene)
+
+Image source: [KuroTofu Pixiv](https://www.pixiv.net/en/artworks/107503203)
